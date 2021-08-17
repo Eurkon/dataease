@@ -10,7 +10,12 @@ import io.dataease.base.mapper.ext.ExtSysMsgMapper;
 import io.dataease.commons.constants.SysMsgConstants;
 import io.dataease.commons.utils.AuthUtils;
 import io.dataease.commons.utils.CommonBeanFactory;
-import io.dataease.controller.message.dto.*;
+import io.dataease.controller.sys.request.BatchSettingRequest;
+import io.dataease.controller.sys.request.MsgRequest;
+import io.dataease.controller.sys.request.MsgSettingRequest;
+import io.dataease.controller.sys.response.MsgGridDto;
+import io.dataease.controller.sys.response.SettingTreeNode;
+import io.dataease.controller.sys.response.SubscribeNode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.cache.annotation.CacheEvict;
@@ -109,7 +114,7 @@ public class SysMsgService {
     }
 
     public void setBatchReaded(List<Long> msgIds) {
-        extSysMsgMapper.batchStatus(msgIds);
+        extSysMsgMapper.batchStatus(msgIds, System.currentTimeMillis());
     }
 
     public void batchDelete(List<Long> msgIds) {
@@ -273,10 +278,12 @@ public class SysMsgService {
     @Cacheable(value = SysMsgConstants.SYS_MSG_USER_SUBSCRIBE, key = "#userId")
     public List<SubscribeNode> subscribes(Long userId) {
         SysMsgSettingExample example = new SysMsgSettingExample();
-        example.createCriteria().andUserIdEqualTo(userId).andEnableEqualTo(true);
+        /*example.createCriteria().andUserIdEqualTo(userId).andEnableEqualTo(true);*/
+        example.createCriteria().andUserIdEqualTo(userId);
         List<SysMsgSetting> sysMsgSettings = sysMsgSettingMapper.selectByExample(example);
         // 添加默认订阅
         sysMsgSettings = addDefault(sysMsgSettings);
+        sysMsgSettings = sysMsgSettings.stream().filter(SysMsgSetting::getEnable).collect(Collectors.toList());
         // sysMsgSettings.addAll(defaultSettings());
         List<SubscribeNode> resultLists = sysMsgSettings.stream().map(item -> {
             SubscribeNode subscribeNode = new SubscribeNode();

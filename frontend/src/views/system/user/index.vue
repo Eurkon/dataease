@@ -169,8 +169,8 @@ import { LOAD_CHILDREN_OPTIONS, LOAD_ROOT_OPTIONS } from '@riophae/vue-treeselec
 import Treeselect from '@riophae/vue-treeselect'
 import '@riophae/vue-treeselect/dist/vue-treeselect.css'
 
-import { userLists, addUser, editUser, delUser, editPassword, editStatus } from '@/api/system/user'
-import { allRoles } from '@/api/system/role'
+import { userLists, addUser, editUser, delUser, editPassword, editStatus, allRoles } from '@/api/system/user'
+// import { allRoles } from '@/api/system/role'
 import { getDeptTree, treeByDeptId } from '@/api/system/dept'
 
 export default {
@@ -208,8 +208,9 @@ export default {
               { label: this.$t('commons.disable'), value: '0' }
             ],
             multiple: false
-          }
-        //   { field: 'deptId', label: '组织', component: conditionTable }
+          },
+          { field: 'd.name', label: this.$t('commons.organization'), component: 'DeComplexInput' },
+          { field: 'r.name', label: this.$t('commons.role'), component: 'DeComplexInput' }
         ]
       },
       paginationConfig: {

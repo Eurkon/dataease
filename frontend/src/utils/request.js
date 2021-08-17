@@ -34,6 +34,10 @@ service.interceptors.request.use(
     if ((linkToken = getLinkToken()) !== null) {
       config.headers[LinkTokenKey] = linkToken
     }
+    if (!linkToken) {
+      linkToken = store.getters.linkToken
+      config.headers[LinkTokenKey] = linkToken
+    }
 
     if (i18n.locale) {
       const lang = i18n.locale.replace('_', '-')
@@ -52,6 +56,10 @@ service.interceptors.request.use(
   }
 )
 
+// const defaultOptions = {
+//   confirmButtonText: i18n.t('login.re_login')
+// }
+
 const checkAuth = response => {
   // 请根据实际需求修改
 
@@ -62,6 +70,9 @@ const checkAuth = response => {
       store.dispatch('user/logout').then(() => {
         location.reload()
       })
+    }, {
+      confirmButtonText: i18n.t('login.re_login'),
+      showClose: false
     })
   }
 
@@ -71,6 +82,9 @@ const checkAuth = response => {
       store.dispatch('user/logout').then(() => {
         location.reload()
       })
+    }, {
+      confirmButtonText: i18n.t('login.re_login'),
+      showClose: false
     })
   }
   // token到期后自动续命 刷新token
@@ -79,9 +93,10 @@ const checkAuth = response => {
     store.dispatch('user/refreshToken', refreshToken)
   }
 
-  if (response.headers[LinkTokenKey.toLocaleLowerCase()]) {
-    const linkToken = response.headers[LinkTokenKey.toLocaleLowerCase()]
+  if (response.headers[LinkTokenKey.toLocaleLowerCase()] || (response.config.headers && response.config.headers[LinkTokenKey.toLocaleLowerCase()])) {
+    const linkToken = response.headers[LinkTokenKey.toLocaleLowerCase()] || response.config.headers[LinkTokenKey.toLocaleLowerCase()]
     setLinkToken(linkToken)
+    store.dispatch('user/setLinkToken', linkToken)
   }
   // 许可状态改变 刷新页面
 //   if (response.headers['lic-status']) {

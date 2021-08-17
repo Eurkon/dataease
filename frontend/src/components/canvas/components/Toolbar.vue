@@ -1,6 +1,17 @@
 <template>
   <div>
-    <div class="toolbar">
+    <!--    linkageActiveStatus:{{ linkageActiveStatus }}-->
+    <div v-if="linkageSettingStatus" class="toolbar">
+      <span style="float: right;">
+        <el-button size="mini" @click="saveLinkage">
+          {{ $t('commons.confirm') }}
+        </el-button>
+        <el-button size="mini" @click="cancelLinkage">
+          {{ $t('commons.cancel') }}
+        </el-button>
+      </span>
+    </div>
+    <div v-else class="toolbar">
 
       <div class="canvas-config" style="margin-right: 10px">
         <el-switch v-model="canvasStyleData.auxiliaryMatrix" :width="35" name="auxiliaryMatrix" />
@@ -90,7 +101,9 @@ import { commonStyle, commonAttr } from '@/components/canvas/custom-component/co
 import eventBus from '@/components/canvas/utils/eventBus'
 import { deepCopy } from '@/components/canvas/utils/utils'
 import { panelSave } from '@/api/panel/panel'
+import { saveLinkage, getPanelAllLinkageInfo } from '@/api/panel/linkage'
 import bus from '@/utils/bus'
+
 import {
   DEFAULT_COMMON_CANVAS_STYLE_STRING
 } from '@/views/panel/panel'
@@ -125,7 +138,10 @@ export default {
     'curComponent',
     'changeTimes',
     'snapshotIndex',
-    'lastSaveSnapshotIndex'
+    'lastSaveSnapshotIndex',
+    'linkageSettingStatus',
+    'curLinkageView',
+    'targetLinkageInfo'
   ]),
 
   created() {
@@ -302,6 +318,26 @@ export default {
     },
     closeNotSave() {
       this.close()
+    },
+    saveLinkage() {
+      const request = {
+        panelId: this.$store.state.panel.panelInfo.id,
+        sourceViewId: this.curLinkageView.propValue.viewId,
+        linkageInfo: this.targetLinkageInfo
+      }
+      saveLinkage(request).then(rsp => {
+        // 刷新联动信息
+        getPanelAllLinkageInfo(this.$store.state.panel.panelInfo.id).then(rsp => {
+          this.$store.commit('setNowPanelTrackInfo', rsp.data)
+        })
+        this.cancelLinkageSettingStatus()
+      })
+    },
+    cancelLinkage() {
+      this.cancelLinkageSettingStatus()
+    },
+    cancelLinkageSettingStatus() {
+      this.$store.commit('clearLinkageSettingInfo')
     }
   }
 }

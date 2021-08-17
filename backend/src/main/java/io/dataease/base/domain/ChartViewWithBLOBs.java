@@ -15,11 +15,15 @@ public class ChartViewWithBLOBs extends ChartView implements Serializable {
 
     private String extStack;
 
+    private String extBubble;
+
     private String customAttr;
 
     private String customStyle;
 
     private String customFilter;
+
+    private String drillFields;
 
     private String snapshot;
 

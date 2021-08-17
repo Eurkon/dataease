@@ -126,9 +126,11 @@ export default {
     expires: 'Login token expired, please login again',
     tokenError: 'Token error, please login again',
     username_error: 'Please enter the correct ID',
-    password_error: 'The password can not be less than 8 digits'
+    password_error: 'The password can not be less than 8 digits',
+    re_login: 'Login again'
   },
   commons: {
+    no_target_permission: 'No permission',
     success: 'Success',
     switch_lang: 'Switch Language Success',
     close: 'Close',
@@ -332,8 +334,11 @@ export default {
     input_pwd: 'Please input password',
     message_box: {
       alert: 'Alert',
-      confirm: 'Confirm'
-    }
+      confirm: 'Confirm',
+      ok: 'Confirm',
+      cancel: 'Cancel'
+    },
+    ukey_title: 'API Keys'
   },
   documentation: {
     documentation: 'Documentation',
@@ -823,7 +828,21 @@ export default {
     map_range: 'Map range',
     select_map_range: 'Please select map range',
     area: 'Area',
-    placeholder_field: 'Drag Field To Here'
+    placeholder_field: 'Drag Field To Here',
+    axis_label_rotate: 'Label Rotate',
+    chart_scatter_bubble: 'Bubble',
+    chart_scatter: 'Scatter',
+    bubble_size: 'Bubble Size',
+    chart_treemap: 'Tree Map',
+    drill: 'Drill',
+    drag_block_treemap_label: 'Color Label',
+    drag_block_treemap_size: 'Color Size',
+    bubble_symbol: 'Shape',
+    gap_width: 'Gap Width',
+    width: 'Width',
+    height: 'Height',
+    system_case: 'System',
+    custom_case: 'Custom'
   },
   dataset: {
     sheet_warn: 'There are multiple sheet pages, and the first one is extracted by default',
@@ -873,6 +892,7 @@ export default {
     sync_now: 'Update Now',
     add_task: 'Add Task',
     task_name: 'Task Name',
+    task_id: 'Task ID',
     start_time: 'Start Time',
     end_time: 'End Time',
     status: 'State',
@@ -985,7 +1005,15 @@ export default {
     data_type: 'Data Type',
     click_ref_field: 'Click Quote Field',
     click_ref_function: 'Click Quote Function',
-    field_manage: 'Field Manage'
+    field_manage: 'Field Manage',
+    edit_calc_field: 'Edit calc field',
+    calc_field: 'Calc Field',
+    show_sql: 'Show SQL',
+    ple_select_excel: 'Please select excel file to import',
+    merge: 'Merge',
+    no_merge: 'Dont Merge',
+    merge_msg: 'If the fields in the data table are consistent, merge them into one data set?',
+    merge_title: 'Merge data'
   },
   datasource: {
     datasource: 'Data Source',
@@ -1017,7 +1045,22 @@ export default {
     oracle_service_name: 'Service Name',
     get_schema: 'Get Schema',
     schema: 'Database Schema',
-    please_choose_schema: 'Please select Schema'
+    please_choose_schema: 'Please select Schema',
+    in_valid: 'Invalid datasource',
+    initial_pool_size: 'Initial connections',
+    min_pool_size: 'Minimum of connections',
+    max_pool_size: 'Maximum connection',
+    max_idle_time: 'Maximum idle (seconds)',
+    acquire_increment: 'Growth number',
+    connect_timeout: 'Connection timeout (seconds)',
+    please_input_initial_pool_size: 'Please enter the number of initial connections',
+    please_input_min_pool_size: 'Please enter the minimum number of connections',
+    please_input_max_pool_size: 'Please enter the maximum number of connections',
+    please_input_max_idle_time: 'Please enter the maximum idle (seconds)',
+    please_input_acquire_increment: 'Please enter the growth number',
+    please_input_connect_timeout: 'Please enter the connection timeout (seconds)',
+    no_less_then_0: 'Parameters in advanced settings cannot be less than zero',
+    priority: 'Advanced setting'
   },
   pblink: {
     key_pwd: 'Please enter the password to open the link',
@@ -1118,6 +1161,7 @@ export default {
     bottomComponent: 'Bottom Component',
     upComponent: 'Up One Level',
     downComponent: 'Down One Level',
+    linkage_setting: 'Linkage Setting',
     open_aided_design: 'Open Component Aided Design',
     close_aided_design: 'Close Component Aided Design',
     open_style_design: 'Open Style Design',
@@ -1158,7 +1202,9 @@ export default {
     panel_save_tips: 'Do you want to save the changes you made to.',
     panel_save_warn_tips: "Your changes will be lost if you don't save them！",
     do_not_save: "Don't Save",
-    save_and_close: 'Save'
+    save_and_close: 'Save',
+    drill: 'drill',
+    linkage: 'linkage'
   },
   plugin: {
     local_install: 'Local installation',

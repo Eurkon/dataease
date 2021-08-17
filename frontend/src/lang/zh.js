@@ -126,9 +126,11 @@ export default {
     expires: '登录信息过期，请重新登录',
     tokenError: '登陆信息错误，请重新登录',
     username_error: '请输入正确的 ID',
-    password_error: '密码不小于 8 位'
+    password_error: '密码不小于 8 位',
+    re_login: '重新登录'
   },
   commons: {
+    no_target_permission: '没有权限',
     success: '成功',
     switch_lang: '切换语言成功',
     close: '关闭',
@@ -332,8 +334,11 @@ export default {
     input_pwd: '请输入密码',
     message_box: {
       alert: '警告',
-      confirm: '确认'
-    }
+      confirm: '确认',
+      ok: '确认',
+      cancel: '取消'
+    },
+    ukey_title: 'API Keys'
   },
   documentation: {
     documentation: '文档',
@@ -823,7 +828,21 @@ export default {
     select_map_range: '请选择地图范围',
     area: '地区',
     stack_item: '堆叠项',
-    placeholder_field: '拖动字段至此处'
+    placeholder_field: '拖动字段至此处',
+    axis_label_rotate: '标签角度',
+    chart_scatter_bubble: '气泡图',
+    chart_scatter: '散点图',
+    bubble_size: '气泡大小',
+    chart_treemap: '矩形树图',
+    drill: '钻取',
+    drag_block_treemap_label: '色块标签',
+    drag_block_treemap_size: '色块大小',
+    bubble_symbol: '图形',
+    gap_width: '间隔',
+    width: '宽度',
+    height: '高度',
+    system_case: '系统方案',
+    custom_case: '自定义'
   },
   dataset: {
     sheet_warn: '有多个 Sheet 页，默认抽取第一个',
@@ -873,6 +892,7 @@ export default {
     sync_now: '立即更新',
     add_task: '添加任务',
     task_name: '任务名称',
+    task_id: '任务ID',
     start_time: '开始时间',
     end_time: '结束时间',
     status: '状态',
@@ -985,7 +1005,15 @@ export default {
     data_type: '数据类型',
     click_ref_field: '点击引用字段',
     click_ref_function: '点击引用函数',
-    field_manage: '字段管理'
+    field_manage: '字段管理',
+    edit_calc_field: '编辑计算字段',
+    calc_field: '计算字段',
+    show_sql: '显示SQL',
+    ple_select_excel: '请选择要导入的 Excel',
+    merge: '合并',
+    no_merge: '不合并',
+    merge_msg: '数据表中存在字段一致的情况，是否合并到一个数据集中?',
+    merge_title: '合并数据'
   },
   datasource: {
     datasource: '数据源',
@@ -1018,7 +1046,23 @@ export default {
     oracle_service_name: '服务名',
     get_schema: '获取 Schema',
     schema: '数据库 Schema',
-    please_choose_schema: '请选择数据库 Schema'
+    please_choose_schema: '请选择数据库 Schema',
+    edit_datasource_msg: '修改数据源信息，可能会导致改数据源下的数据集不可用，确认修改？',
+    in_valid: '无效数据源',
+    initial_pool_size: '初始连接数',
+    min_pool_size: '最小连接数',
+    max_pool_size: '最大连接数',
+    max_idle_time: '最大空闲(秒)',
+    acquire_increment: '增长数',
+    connect_timeout: '连接超时(秒)',
+    please_input_initial_pool_size: '请输入初始连接数',
+    please_input_min_pool_size: '请输入最小连接数',
+    please_input_max_pool_size: '请输入最大连接数',
+    please_input_max_idle_time: '请输入最大空闲(秒)',
+    please_input_acquire_increment: '请输入增长数',
+    please_input_connect_timeout: '请输入连接超时(秒)',
+    no_less_then_0: '高级设置中的参数不能小于零',
+    priority: '高级设置'
   },
   pblink: {
     key_pwd: '请输入密码打开链接',
@@ -1119,6 +1163,7 @@ export default {
     bottomComponent: '置底',
     upComponent: '上移',
     downComponent: '下移',
+    linkage_setting: '联动设置',
     open_aided_design: '打开组件辅助设计',
     close_aided_design: '关闭组件辅助设计',
     open_style_design: '打开样式设计',
@@ -1159,7 +1204,9 @@ export default {
     panel_save_tips: '仪表板已变动，是否保存？',
     panel_save_warn_tips: '如果未保存，你对仪表板做的变更将会丢失！',
     do_not_save: '不保存',
-    save: '保存'
+    save: '保存',
+    drill: '下钻',
+    linkage: '联动'
   },
   plugin: {
     local_install: '本地安装',

@@ -14,7 +14,7 @@
             <span>{{ $t('dataset.field_exp') }}</span>
             <codemirror
               ref="myCm"
-              v-model="fieldExp"
+              v-model="fieldForm.originName"
               class="codemirror"
               :options="cmOption"
               @ready="onCmReady"
@@ -55,19 +55,26 @@
         </el-row>
       </el-col>
       <el-col :span="10" style="height: 100%;border-left: 1px solid #E6E6E6;">
-        <el-col :span="12" style="height: 100%">
+        <el-col :span="12" style="height: 100%" class="padding-lr">
           <span>{{ $t('dataset.click_ref_field') }}</span>
-          <div class="padding-lr field-height">
+          <el-input
+            v-model="searchField"
+            size="mini"
+            :placeholder="$t('dataset.search')"
+            prefix-icon="el-icon-search"
+            clearable
+          />
+          <div class="field-height">
             <span>{{ $t('chart.dimension') }}</span>
             <draggable
-              v-model="tableFields.dimensionList"
+              v-model="dimensionData"
               :options="{group:{name: 'drag',pull:'clone'},sort: true}"
               animation="300"
               class="drag-list"
               :disabled="true"
             >
               <transition-group>
-                <span v-for="item in tableFields.dimensionList" :key="item.id" class="item-dimension" :title="item.name" @click="insertParamToCodeMirror(item.id)">
+                <span v-for="item in dimensionData" :key="item.id" class="item-dimension" :title="item.name" @click="insertParamToCodeMirror('['+item.id+']')">
                   <svg-icon v-if="item.deType === 0" icon-class="field_text" class="field-icon-text" />
                   <svg-icon v-if="item.deType === 1" icon-class="field_time" class="field-icon-time" />
                   <svg-icon v-if="item.deType === 2 || item.deType === 3" icon-class="field_value" class="field-icon-value" />
@@ -77,17 +84,17 @@
               </transition-group>
             </draggable>
           </div>
-          <div class="padding-lr field-height">
+          <div class="field-height">
             <span>{{ $t('chart.quota') }}</span>
             <draggable
-              v-model="tableFields.quotaList"
+              v-model="quotaData"
               :options="{group:{name: 'drag',pull:'clone'},sort: true}"
               animation="300"
               class="drag-list"
               :disabled="true"
             >
               <transition-group>
-                <span v-for="item in tableFields.quotaList" :key="item.id" class="item-quota" :title="item.name" @click="insertParamToCodeMirror(item.id)">
+                <span v-for="item in quotaData" :key="item.id" class="item-quota" :title="item.name" @click="insertParamToCodeMirror('['+item.id+']')">
                   <svg-icon v-if="item.deType === 0" icon-class="field_text" class="field-icon-text" />
                   <svg-icon v-if="item.deType === 1" icon-class="field_time" class="field-icon-time" />
                   <svg-icon v-if="item.deType === 2 || item.deType === 3" icon-class="field_value" class="field-icon-value" />
@@ -98,13 +105,40 @@
             </draggable>
           </div>
         </el-col>
-        <el-col :span="12" style="height: 100%">
+        <el-col :span="12" style="height: 100%" class="padding-lr">
           <span>{{ $t('dataset.click_ref_function') }}</span>
-          <el-row class="padding-lr function-height">
-            <span v-for="(item,index) in functions" :key="index" class="function-style" @click="insertParamToCodeMirror(item.name)">{{ item.name }}</span>
+          <el-input
+            v-model="searchFunction"
+            size="mini"
+            :placeholder="$t('dataset.search')"
+            prefix-icon="el-icon-search"
+            clearable
+          />
+          <el-row class="function-height">
+            <el-popover
+              v-for="(item,index) in functionData"
+              :key="index"
+              class="function-pop"
+              placement="right"
+              width="200"
+              trigger="hover"
+              :open-delay="500"
+            >
+              <p class="pop-title">{{ item.name }}</p>
+              <p class="pop-info">{{ item.func }}</p>
+              <p class="pop-info">{{ item.desc }}</p>
+              <span slot="reference" class="function-style" :title="item.func" @click="insertParamToCodeMirror(item.func)">{{ item.func }}</span>
+            </el-popover>
           </el-row>
         </el-col>
       </el-col>
+    </el-row>
+
+    <el-row>
+      <div class="dialog-button">
+        <el-button size="mini" @click="closeCalcField">{{ $t('dataset.cancel') }}</el-button>
+        <el-button :disabled="!fieldForm.name || !fieldForm.originName" type="primary" size="mini" @click="saveCalcField">{{ $t('dataset.confirm') }}</el-button>
+      </div>
     </el-row>
   </el-row>
 </template>
@@ -134,6 +168,7 @@ import 'codemirror/keymap/emacs.js'
 import 'codemirror/addon/hint/show-hint.css'
 import 'codemirror/addon/hint/sql-hint'
 import 'codemirror/addon/hint/show-hint'
+import { post } from '../../../api/dataset/dataset'
 
 export default {
   name: 'CalcFieldEdit',
@@ -146,16 +181,26 @@ export default {
     tableFields: {
       type: Object,
       required: true
+    },
+    field: {
+      type: Object,
+      required: true
     }
   },
   data() {
     return {
       fieldForm: {
+        id: null,
         name: '',
         groupType: 'd',
-        deType: 0
+        deType: 0,
+        originName: '',
+        tableId: this.param.id,
+        checked: 1,
+        columnIndex: this.tableFields.dimensionList.length + this.tableFields.quotaList.length,
+        size: 0,
+        extField: 2
       },
-      fieldExp: '',
       cmOption: {
         tabSize: 2,
         styleActiveLine: true,
@@ -174,33 +219,12 @@ export default {
         { label: this.$t('dataset.value') + '(' + this.$t('dataset.float') + ')', value: 3 },
         { label: this.$t('dataset.location'), value: 5 }
       ],
-      functions: [
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' },
-        { name: 'ABS(n)' }
-      ]
+      functions: [],
+      searchField: '',
+      searchFunction: '',
+      dimensionData: [],
+      quotaData: [],
+      functionData: []
     }
   },
   computed: {
@@ -208,10 +232,45 @@ export default {
       return this.$refs.myCm.codemirror
     }
   },
+  watch: {
+    'param': function() {
+      this.initFunctions()
+    },
+    'field': {
+      handler: function() {
+        this.initField()
+      },
+      deep: true
+    },
+    'tableFields': function() {
+      this.dimensionData = JSON.parse(JSON.stringify(this.tableFields.dimensionList)).filter(ele => ele.extField === 0)
+      this.quotaData = JSON.parse(JSON.stringify(this.tableFields.quotaList)).filter(ele => ele.extField === 0)
+    },
+    'searchField': function(val) {
+      if (val && val !== '') {
+        this.dimensionData = JSON.parse(JSON.stringify(this.tableFields.dimensionList.filter(ele => ele.name.toLocaleLowerCase().includes(val.toLocaleLowerCase()) && ele.extField === 0)))
+        this.quotaData = JSON.parse(JSON.stringify(this.tableFields.quotaList.filter(ele => ele.name.toLocaleLowerCase().includes(val.toLocaleLowerCase()) && ele.extField === 0)))
+      } else {
+        this.dimensionData = JSON.parse(JSON.stringify(this.tableFields.dimensionList)).filter(ele => ele.extField === 0)
+        this.quotaData = JSON.parse(JSON.stringify(this.tableFields.quotaList)).filter(ele => ele.extField === 0)
+      }
+    },
+    'searchFunction': function(val) {
+      if (val && val !== '') {
+        this.functionData = JSON.parse(JSON.stringify(this.functions.filter(ele => { return ele.func.toLocaleLowerCase().includes(val.toLocaleLowerCase()) })))
+      } else {
+        this.functionData = JSON.parse(JSON.stringify(this.functions))
+      }
+    }
+  },
   mounted() {
     this.$refs.myCm.codemirror.on('keypress', () => {
       this.$refs.myCm.codemirror.showHint()
     })
+    this.initFunctions()
+    this.initField()
+    this.dimensionData = JSON.parse(JSON.stringify(this.tableFields.dimensionList)).filter(ele => ele.extField === 0)
+    this.quotaData = JSON.parse(JSON.stringify(this.tableFields.quotaList)).filter(ele => ele.extField === 0)
   },
   methods: {
     onCmReady(cm) {
@@ -222,7 +281,7 @@ export default {
     },
     onCmCodeChange(newCode) {
       // console.log(newCode)
-      this.fieldExp = newCode
+      this.fieldForm.originName = newCode
     },
     insertParamToCodeMirror(param) {
       const pos1 = this.$refs.myCm.codemirror.getCursor()
@@ -230,6 +289,57 @@ export default {
       pos2.line = pos1.line
       pos2.ch = pos1.ch
       this.$refs.myCm.codemirror.replaceRange(param, pos2)
+    },
+
+    initFunctions() {
+      post('/dataset/function/listByTableId/' + this.param.id, null).then(response => {
+        this.functions = response.data
+        this.functionData = JSON.parse(JSON.stringify(this.functions))
+      })
+    },
+
+    initField() {
+      if (this.field.id) {
+        this.fieldForm = JSON.parse(JSON.stringify(this.field))
+      } else {
+        this.fieldForm = JSON.parse(JSON.stringify(this.fieldForm))
+      }
+    },
+
+    closeCalcField() {
+      this.resetField()
+      this.$emit('onEditClose', {})
+    },
+
+    saveCalcField() {
+      if (!this.fieldForm.id) {
+        this.fieldForm.type = this.fieldForm.deType
+        this.fieldForm.deExtractType = this.fieldForm.deType
+        this.fieldForm.tableId = this.param.id
+        this.fieldForm.columnIndex = this.tableFields.dimensionList.length + this.tableFields.quotaList.length
+      }
+      post('/dataset/field/save', this.fieldForm).then(response => {
+        this.closeCalcField()
+      })
+    },
+
+    resetField() {
+      this.fieldForm = {
+        id: null,
+        name: '',
+        groupType: 'd',
+        deType: 0,
+        originName: '',
+        tableId: this.param.id,
+        checked: 1,
+        columnIndex: this.tableFields.dimensionList.length + this.tableFields.quotaList.length,
+        size: 0,
+        extField: 2
+      }
+      this.dimensionData = []
+      this.quotaData = []
+      this.searchField = ''
+      this.searchFunction = ''
     }
   }
 }
@@ -260,10 +370,11 @@ export default {
   }
 
   .padding-lr {
-    padding: 0 6px;
+    padding: 0 4px;
   }
   .field-height{
-    height: calc(50% - 20px);
+    height: calc(50% - 25px);
+    margin-top: 4px;
   }
   .drag-list {
     height: calc(100% - 26px);
@@ -329,9 +440,29 @@ export default {
     padding: 2px 4px;
     cursor: pointer;
     margin: 4px 0;
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
   .function-height{
-    height: calc(100% - 20px);
+    height: calc(100% - 50px);
     overflow: auto;
+    margin-top: 4px;
+  }
+  .function-pop>>>.el-popover{
+    padding: 6px!important;
+  }
+  .pop-title{
+    margin: 6px 0 0 0;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .pop-info{
+    margin: 6px 0 0 0;
+    font-size: 10px;
+  }
+  .dialog-button{
+    float: right;
+    margin-top: 10px;
   }
 </style>
